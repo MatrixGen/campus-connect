@@ -1,3 +1,4 @@
+import { Sequelize, Op } from 'sequelize';
 import sequelize from '../config/database';
 import User from './User';
 import Runner from './Runner';
@@ -5,78 +6,106 @@ import Errand from './Errand';
 import Transaction from './Transaction';
 import Review from './Review';
 
-// User - Runner Association (One-to-One)
+// Define associations
 User.hasOne(Runner, {
   foreignKey: 'user_id',
   as: 'runner_profile',
+  onDelete: 'CASCADE'
 });
 
 Runner.belongsTo(User, {
   foreignKey: 'user_id',
-  as: 'user',
+  as: 'user'
 });
 
-// User - Errands Associations
+// User-Errand associations
 User.hasMany(Errand, {
   foreignKey: 'customer_id',
-  as: 'requested_errands',
+  as: 'customer_errands'
 });
 
 User.hasMany(Errand, {
   foreignKey: 'runner_id',
-  as: 'accepted_errands',
+  as: 'runner_errands'
 });
 
 Errand.belongsTo(User, {
   foreignKey: 'customer_id',
-  as: 'customer',
+  as: 'customer'
 });
 
 Errand.belongsTo(User, {
   foreignKey: 'runner_id',
-  as: 'runner',
+  as: 'runner'
 });
 
-// Errand - Transaction Association (One-to-One)
+// Errand-Transaction association
 Errand.hasOne(Transaction, {
   foreignKey: 'errand_id',
-  as: 'transaction',
+  as: 'transaction'
 });
 
 Transaction.belongsTo(Errand, {
   foreignKey: 'errand_id',
-  as: 'errand',
+  as: 'errand'
 });
 
-// Review Associations
+// User-Transaction associations
+User.hasMany(Transaction, {
+  foreignKey: 'customer_id',
+  as: 'customer_transactions'
+});
+
+User.hasMany(Transaction, {
+  foreignKey: 'runner_id',
+  as: 'runner_transactions'
+});
+
+Transaction.belongsTo(User, {
+  foreignKey: 'customer_id',
+  as: 'customer'
+});
+
+Transaction.belongsTo(User, {
+  foreignKey: 'runner_id',
+  as: 'runner'
+});
+
+// Review associations
 Errand.hasOne(Review, {
   foreignKey: 'errand_id',
-  as: 'review',
+  as: 'review'
 });
 
 Review.belongsTo(Errand, {
   foreignKey: 'errand_id',
-  as: 'errand',
+  as: 'errand'
 });
 
 User.hasMany(Review, {
   foreignKey: 'reviewer_id',
-  as: 'reviews_given',
+  as: 'given_reviews'
 });
 
 User.hasMany(Review, {
   foreignKey: 'reviewee_id',
-  as: 'reviews_received',
+  as: 'received_reviews'
 });
 
 Review.belongsTo(User, {
   foreignKey: 'reviewer_id',
-  as: 'reviewer',
+  as: 'reviewer'
 });
 
 Review.belongsTo(User, {
   foreignKey: 'reviewee_id',
-  as: 'reviewee',
+  as: 'reviewee'
+});
+
+// Cancelled by association
+Errand.belongsTo(User, {
+  foreignKey: 'cancelled_by',
+  as: 'cancelled_by_user'
 });
 
 const models = {
@@ -86,8 +115,8 @@ const models = {
   Transaction,
   Review,
   sequelize,
+  Sequelize, // Add Sequelize class
+  Op // Add Op for operators
 };
-
-export type Models = typeof models;
 
 export default models;

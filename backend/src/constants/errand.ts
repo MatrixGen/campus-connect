@@ -1,4 +1,4 @@
-// constants/errand.ts
+/*/ constants/errand.ts
 import { Category, UrgencyType,StatusType } from '../types/errand';
 
 export const CATEGORY_MULTIPLIERS: Record<Category, number> = {
@@ -37,4 +37,4 @@ export const RUNNER_SHARE = 0.75;
 export const PLATFORM_SHARE = 0.25;
 
 export const VALID_URGENCY: UrgencyType[] = ['standard', 'urgent'];
-
+*/

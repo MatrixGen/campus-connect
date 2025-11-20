@@ -1,6 +1,6 @@
-// middleware/validateErrand.ts
+/*/ middleware/validateErrand.ts
 import { Request, Response, NextFunction } from 'express';
-import { Category, StatusType, UrgencyType } from '../types/errand';
+import { Category, ErrandStatus, Urgency } from '../types/errand';
 import { VALID_CATEGORIES, VALID_STATUSES, VALID_URGENCY } from '../constants/errand';
 
 // Define typed request bodies
@@ -44,7 +44,7 @@ export function validateCreateErrand(
 
   // Validate urgency
   const finalUrgency = urgency || 'standard';
-  if (!VALID_URGENCY.includes(finalUrgency as UrgencyType)) {
+  if (!VALID_URGENCY.includes(finalUrgency as Urgency)) {
     return res.status(400).json({
       success: false,
       message: `Invalid urgency. Must be one of: ${VALID_URGENCY.join(', ')}`
@@ -53,7 +53,7 @@ export function validateCreateErrand(
 
   // Cast validated values back to req.body so downstream code sees correct types
   req.body.category = category as Category;
-  req.body.urgency = finalUrgency as UrgencyType;
+  req.body.urgency = finalUrgency as Urgency;
 
   next();
 }
@@ -65,7 +65,7 @@ export function validateUpdateStatus(
   next: NextFunction
 ) {
   const { status } = req.body;
-  if (!status || !VALID_STATUSES.includes(status as StatusType)) {
+  if (!status || !VALID_STATUSES.includes(status as ErrandStatus)) {
     return res.status(400).json({
       success: false,
       message: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}`
@@ -73,7 +73,7 @@ export function validateUpdateStatus(
   }
 
   // Cast to StatusType
-  req.body.status = status as StatusType;
+  req.body.status = status as ErrandStatus;
 
   next();
-}
+}*/

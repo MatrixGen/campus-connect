@@ -1,7 +1,7 @@
 import { DataTypes, Model, Optional } from 'sequelize';
 import sequelize from '../config/database';
-import Errand from './Errand';
 import User from './User';
+import Errand from './Errand';
 
 interface ReviewAttributes {
   id: number;
@@ -10,10 +10,12 @@ interface ReviewAttributes {
   reviewee_id: number;
   rating: number;
   comment?: string;
+  type: 'customer_to_runner' | 'runner_to_customer';
   created_at: Date;
+  updated_at: Date;
 }
 
-interface ReviewCreationAttributes extends Optional<ReviewAttributes, 'id' | 'created_at'> {}
+interface ReviewCreationAttributes extends Optional<ReviewAttributes, 'id' | 'created_at' | 'updated_at'> {}
 
 class Review extends Model<ReviewAttributes, ReviewCreationAttributes> implements ReviewAttributes {
   public id!: number;
@@ -22,7 +24,9 @@ class Review extends Model<ReviewAttributes, ReviewCreationAttributes> implement
   public reviewee_id!: number;
   public rating!: number;
   public comment?: string;
+  public type!: 'customer_to_runner' | 'runner_to_customer';
   public created_at!: Date;
+  public updated_at!: Date;
 }
 
 Review.init(
@@ -68,7 +72,15 @@ Review.init(
       type: DataTypes.TEXT,
       allowNull: true,
     },
+    type: {
+      type: DataTypes.ENUM('customer_to_runner', 'runner_to_customer'),
+      allowNull: false,
+    },
     created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
     },
@@ -78,6 +90,23 @@ Review.init(
     tableName: 'reviews',
     timestamps: true,
     underscored: true,
+    indexes: [
+      {
+        fields: ['errand_id']
+      },
+      {
+        fields: ['reviewer_id']
+      },
+      {
+        fields: ['reviewee_id']
+      },
+      {
+        fields: ['type']
+      },
+      {
+        fields: ['rating']
+      }
+    ]
   }
 );
 
