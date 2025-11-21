@@ -25,6 +25,8 @@ import {
   validateQueryFilters,
 } from "../middleware/validators/errandValidator";
 
+import trustScoreService from "../services/trustScoreService";
+
 // Re-export validation schemas for routes
 export {
   validateErrandCreation,
@@ -541,6 +543,8 @@ class ErrandController {
     }
   }
 
+  // Add this import
+
   /**
    * Complete an errand
    */
@@ -551,6 +555,17 @@ class ErrandController {
         errandId,
         req.user.userId
       );
+
+      // Check runner's trust score before payment
+      const runnerId = req.user.userId;
+      const meetsRequirements =
+        await trustScoreService.meetsMinimumRequirements(runnerId);
+      if (!meetsRequirements) {
+        console.warn(
+          `⚠️ Runner ${runnerId} has low trust score - payment held for review`
+        );
+        // In future, implement payment holding logic
+      }
 
       // WebSocket: Emit errand completed event
       socketService.emitErrandCompleted(errand);

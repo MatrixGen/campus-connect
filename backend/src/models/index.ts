@@ -5,6 +5,7 @@ import Runner from './Runner';
 import Errand from './Errand';
 import Transaction from './Transaction';
 import Review from './Review';
+import Report from './Report'; // Added import
 
 // Define associations
 User.hasOne(Runner, {
@@ -108,15 +109,43 @@ Errand.belongsTo(User, {
   as: 'cancelled_by_user'
 });
 
+// Report Associations - Added after existing ones
+User.hasMany(Report, {
+  foreignKey: 'reporter_id',
+  as: 'reports_made',
+});
+
+User.hasMany(Report, {
+  foreignKey: 'reported_user_id',
+  as: 'reports_received',
+});
+
+Report.belongsTo(User, {
+  foreignKey: 'reporter_id',
+  as: 'reporter',
+});
+
+Report.belongsTo(User, {
+  foreignKey: 'reported_user_id',
+  as: 'reported_user',
+});
+
+Report.belongsTo(Errand, {
+  foreignKey: 'errand_id',
+  as: 'errand',
+});
+
+// Updated models export with Report included
 const models = {
   User,
   Runner,
   Errand,
   Transaction,
   Review,
+  Report, // Added Report
   sequelize,
-  Sequelize, // Add Sequelize class
-  Op // Add Op for operators
+  Sequelize,
+  Op
 };
 
 export default models;

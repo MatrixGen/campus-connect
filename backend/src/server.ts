@@ -11,7 +11,8 @@ import socketService from './services/socketService';
 // Routes
 import authRoutes from './routes/authRoutes';
 import errandRoutes from './routes/errandRoutes';
-import runnerRoutes from './routes/runnerRoutes'; // Added based on console log
+import runnerRoutes from './routes/runnerRoutes'; 
+import trustSafetyRoutes from './routes/trustSafetyRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -39,7 +40,8 @@ socketService.initialize(server);
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/errands', errandRoutes);
-app.use('/api/runners', runnerRoutes); // Added based on console log
+app.use('/api/runners', runnerRoutes);
+app.use('/api/trust-safety', trustSafetyRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
