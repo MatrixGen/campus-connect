@@ -1,7 +1,8 @@
-import { DataTypes, Model, Optional } from 'sequelize';
+// models/Transaction.ts
+import { DataTypes, Model, Optional, Association } from 'sequelize';
 import sequelize from '../config/database';
-import User from './User';
 import Errand from './Errand';
+import User from './User';
 
 interface TransactionAttributes {
   id: number;
@@ -39,6 +40,17 @@ class Transaction extends Model<TransactionAttributes, TransactionCreationAttrib
   public completed_at?: Date;
   public created_at!: Date;
   public updated_at!: Date;
+
+  // Association types
+  public readonly errand?: Errand;
+  public readonly customer?: User;
+  public readonly runner?: User;
+
+  public static associations: {
+    errand: Association<Transaction, Errand>;
+    customer: Association<Transaction, User>;
+    runner: Association<Transaction, User>;
+  };
 }
 
 Transaction.init(

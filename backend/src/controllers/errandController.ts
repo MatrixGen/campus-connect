@@ -2,6 +2,7 @@
 import { Response } from "express";
 import { AuthRequest } from "../middleware/authMiddleware";
 import { errandService } from "../services/errandService";
+import socketService from "../services/socketService"; // Added WebSocket import
 import models from "../models";
 import { Op } from "sequelize";
 import {
@@ -139,6 +140,9 @@ class ErrandController {
       };
 
       const errand = await errandService.createErrand(errandData);
+
+      // WebSocket: Emit errand created event
+      socketService.emitErrandCreated(errand);
 
       logger.info("Errand created successfully", {
         errandId: errand.id,
@@ -486,6 +490,11 @@ class ErrandController {
         req.user.userId
       );
 
+      // WebSocket: Emit errand accepted event and join rooms
+      socketService.emitErrandAccepted(errand);
+      socketService.joinErrandRoom(errand.customer_id, errandId); // Customer
+      socketService.joinErrandRoom(req.user.userId, errandId); // Runner
+
       logger.info("Errand accepted", {
         errandId,
         runnerId: req.user.userId,
@@ -508,6 +517,14 @@ class ErrandController {
     try {
       const errandId = validateIdParam(req.params.id)!;
       const errand = await errandService.startErrand(errandId, req.user.userId);
+
+      // WebSocket: Emit errand status update
+      socketService.emitErrandStatusUpdate({
+        errandId: errand.id, // Use the actual errand object's ID
+        status: errand.status, // Use the actual status from the updated errand
+        message: `Errand has been started`,
+        updatedBy: req.user.userId,
+      });
 
       logger.info("Errand started", {
         errandId,
@@ -534,6 +551,9 @@ class ErrandController {
         errandId,
         req.user.userId
       );
+
+      // WebSocket: Emit errand completed event
+      socketService.emitErrandCompleted(errand);
 
       logger.info("Errand completed", {
         errandId,
@@ -563,6 +583,14 @@ class ErrandController {
         req.user.userId,
         reason
       );
+
+      // WebSocket: Emit errand status update for cancellation
+      socketService.emitErrandStatusUpdate({
+        errandId: errand.id,
+        status: errand.status,
+        message: `Errand cancelled: ${reason || "No reason provided"}`,
+        updatedBy: req.user.userId,
+      });
 
       logger.info("Errand cancelled", {
         errandId,
@@ -846,6 +874,13 @@ class ErrandController {
 
       await errand.update(updateData);
 
+      // WebSocket: Emit errand updated event
+      socketService.emitErrandStatusUpdate({
+        errandId: errand.id,
+        status: errand.status,
+        message: "Errand details updated successfully",
+        updatedBy: req.user.userId,
+      });
       logger.info("Errand updated", {
         errandId,
         customerId: req.user.userId,
