@@ -9,6 +9,14 @@ import {
 } from '../types/runner.types';
 import { RunnerCreationAttributes } from '../types/models.types';
 
+// Add ValidationError class at the top
+export class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ValidationError';
+  }
+}
+
 // Simple fallbacks for missing dependencies
 const logger = {
   error: (message: string, meta?: any) => console.error('ERROR:', message, meta),
@@ -28,7 +36,7 @@ const metrics = {
   incrementCounter: (name: string, value: number = 1) => {
     console.log(`Counter ${name} incremented by ${value}`);
   },
-};;
+};
 
 // Simple in-memory cache fallback
 class MemoryCache {
@@ -122,7 +130,7 @@ export class RunnerService {
     let transaction: Transaction | undefined;
 
     try {
-      // Validate input data
+      // Validate input data using updated validation methods
       this.validateRunnerRegistrationData(data);
 
       // Start transaction for atomic operations
@@ -166,6 +174,8 @@ export class RunnerService {
       metrics.incrementCounter('runner.registrations.error', 1);
       logger.error('Error creating runner profile', { userId, error });
       
+      // Updated error handling to check for ValidationError
+      if (error instanceof ValidationError) throw error;
       if (error instanceof Error && error.message.includes('ValidationError')) throw error;
       throw new Error('Failed to create runner profile');
     } finally {
@@ -268,7 +278,7 @@ export class RunnerService {
     let transaction: Transaction | undefined;
 
     try {
-      // Validate update data
+      // Validate update data using updated validation methods
       if (updateData.areas_covered) {
         this.validateAreasCovered(updateData.areas_covered);
       }
@@ -319,7 +329,7 @@ export class RunnerService {
       metrics.incrementCounter('runner.profile_updates.error', 1);
       if (error instanceof Error && (
         error.message === 'Runner profile not found' || 
-        error.message.includes('ValidationError')
+        error instanceof ValidationError
       )) throw error;
       logger.error('Error updating runner profile', { userId, error });
       throw new Error('Failed to update runner profile');
@@ -624,32 +634,32 @@ export class RunnerService {
     }
   }
 
-  // Private helper methods
+  // Private helper methods - UPDATED to use ValidationError
   private validateRunnerRegistrationData(data: RunnerRegistrationData): void {
     if (!data.areas_covered || !Array.isArray(data.areas_covered)) {
-      throw new Error('Areas covered must be a non-empty array');
+      throw new ValidationError('Areas covered must be a non-empty array');
     }
 
     this.validateAreasCovered(data.areas_covered);
 
     if (!data.transportation_mode || data.transportation_mode.trim().length === 0) {
-      throw new Error('Transportation mode is required');
+      throw new ValidationError('Transportation mode is required');
     }
   }
 
   private validateAreasCovered(areas: string[]): void {
     if (areas.length === 0) {
-      throw new Error('At least one area must be covered');
+      throw new ValidationError('At least one area must be covered');
     }
 
     if (areas.length > CONFIG.MAX_AREAS_COVERED) {
-      throw new Error(`Maximum ${CONFIG.MAX_AREAS_COVERED} areas allowed`);
+      throw new ValidationError(`Maximum ${CONFIG.MAX_AREAS_COVERED} areas allowed`);
     }
 
     // Validate each area is a non-empty string
     for (const area of areas) {
       if (typeof area !== 'string' || area.trim().length === 0) {
-        throw new Error('All areas must be non-empty strings');
+        throw new ValidationError('All areas must be non-empty strings');
       }
     }
   }
