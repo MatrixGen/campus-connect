@@ -6,11 +6,12 @@ interface UserAttributes {
   phone_number: string;
   email?: string;
   full_name: string;
-  user_type: 'customer' | 'runner' | 'both';
+  user_type: 'customer' | 'runner' | 'both' | 'admin';
   student_id?: string;
   verification_status: 'pending' | 'verified' | 'rejected';
   avatar_url?: string;
   is_active: boolean;
+  is_admin: boolean;
   date_of_birth?: Date;
   gender?: 'male' | 'female' | 'other';
   campus_location?: string;
@@ -18,18 +19,19 @@ interface UserAttributes {
   updated_at: Date;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'verification_status' | 'is_active' | 'created_at' | 'updated_at'> {}
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'verification_status' | 'is_active' | 'is_admin' | 'created_at' | 'updated_at'> {}
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: number;
   public phone_number!: string;
   public email?: string;
   public full_name!: string;
-  public user_type!: 'customer' | 'runner' | 'both';
+  public user_type!: 'customer' | 'runner' | 'both' | 'admin';
   public student_id?: string;
   public verification_status!: 'pending' | 'verified' | 'rejected';
   public avatar_url?: string;
   public is_active!: boolean;
+  public is_admin!: boolean;
   public date_of_birth?: Date;
   public gender?: 'male' | 'female' | 'other';
   public campus_location?: string;
@@ -61,7 +63,7 @@ User.init(
       allowNull: false,
     },
     user_type: {
-      type: DataTypes.ENUM('customer', 'runner', 'both'),
+      type: DataTypes.ENUM('customer', 'runner', 'both', 'admin'),
       allowNull: false,
     },
     student_id: {
@@ -80,6 +82,10 @@ User.init(
     is_active: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
+    },
+    is_admin: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
     },
     date_of_birth: {
       type: DataTypes.DATE,

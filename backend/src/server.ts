@@ -13,6 +13,7 @@ import authRoutes from './routes/authRoutes';
 import errandRoutes from './routes/errandRoutes';
 import runnerRoutes from './routes/runnerRoutes'; 
 import trustSafetyRoutes from './routes/trustSafetyRoutes';
+import adminRoutes from './routes/adminRoutes';
 
 // Load environment variables
 dotenv.config();
@@ -42,6 +43,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/errands', errandRoutes);
 app.use('/api/runners', runnerRoutes);
 app.use('/api/trust-safety', trustSafetyRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check route
 app.get('/api/health', (req, res) => {
